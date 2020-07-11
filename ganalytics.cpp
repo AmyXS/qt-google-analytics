@@ -8,6 +8,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QOperatingSystemVersion>
 #include <QQueue>
 #include <QSettings>
 #include <QTimer>
@@ -73,7 +74,6 @@ public:
     QString getScreenResolution();
 #endif // QT_GUI_LIB
     QString getUserAgent();
-    QString getSystemInfo();
     QList<QString> persistMessageQueue();
     void readMessagesFromFile(const QList<QString> &dataList);
     QString getClientID();
@@ -190,215 +190,13 @@ QString GAnalytics::Private::getScreenResolution()
 QString GAnalytics::Private::getUserAgent()
 {
     QString locale = QLocale::system().name();
-    QString system = getSystemInfo();
+
+    QString osType = QOperatingSystemVersion::current().name();
+    QString osVersion = QString::number(QOperatingSystemVersion::current().majorVersion()) + "." + QString::number(QOperatingSystemVersion::current().minorVersion());
+    QString system = osType + "; " + osVersion;
 
     return QString("%1/%2 (%3; %4) GAnalytics/1.0 (Qt/%5)").arg(appName).arg(appVersion).arg(system).arg(locale).arg(QT_VERSION_STR);
 }
-
-
-#ifdef Q_OS_MAC
-/**
- * Only on Mac OS X
- * Get the Operating system name and version.
- * @return os   The operating system name and version in a string.
- */
-QString GAnalytics::Private::getSystemInfo()
-{
-    QSysInfo::MacVersion version = QSysInfo::macVersion();
-    QString os;
-    switch (version)
-    {
-    case QSysInfo::MV_9:
-        os = "Macintosh; Mac OS 9";
-        break;
-    case QSysInfo::MV_10_0:
-        os = "Macintosh; Mac OS 10.0";
-        break;
-    case QSysInfo::MV_10_1:
-        os = "Macintosh; Mac OS 10.1";
-        break;
-    case QSysInfo::MV_10_2:
-        os = "Macintosh; Mac OS 10.2";
-        break;
-    case QSysInfo::MV_10_3:
-        os = "Macintosh; Mac OS 10.3";
-        break;
-    case QSysInfo::MV_10_4:
-        os = "Macintosh; Mac OS 10.4";
-        break;
-    case QSysInfo::MV_10_5:
-        os = "Macintosh; Mac OS 10.5";
-        break;
-    case QSysInfo::MV_10_6:
-        os = "Macintosh; Mac OS 10.6";
-        break;
-    case QSysInfo::MV_10_7:
-        os = "Macintosh; Mac OS 10.7";
-        break;
-    case QSysInfo::MV_10_8:
-        os = "Macintosh; Mac OS 10.8";
-        break;
-    case QSysInfo::MV_10_9:
-        os = "Macintosh; Mac OS 10.9";
-        break;
-    case QSysInfo::MV_10_10:
-        os = "Macintosh; Mac OS 10.10";
-        break;
-    case QSysInfo::MV_10_11:
-        os = "Macintosh; Mac OS 10.11";
-        break;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-    case QSysInfo::MV_10_12:
-        os = "Macintosh; Mac OS 10.12";
-        break;
-#endif
-    case QSysInfo::MV_Unknown:
-        os = "Macintosh; Mac OS unknown";
-        break;
-    case QSysInfo::MV_IOS_5_0:
-        os = "iPhone; iOS 5.0";
-        break;
-    case QSysInfo::MV_IOS_5_1:
-        os = "iPhone; iOS 5.1";
-        break;
-    case QSysInfo::MV_IOS_6_0:
-        os = "iPhone; iOS 6.0";
-        break;
-    case QSysInfo::MV_IOS_6_1:
-        os = "iPhone; iOS 6.1";
-        break;
-    case QSysInfo::MV_IOS_7_0:
-        os = "iPhone; iOS 7.0";
-        break;
-    case QSysInfo::MV_IOS_7_1:
-        os = "iPhone; iOS 7.1";
-        break;
-    case QSysInfo::MV_IOS_8_0:
-        os = "iPhone; iOS 8.0";
-        break;
-    case QSysInfo::MV_IOS_8_1:
-        os = "iPhone; iOS 8.1";
-        break;
-    case QSysInfo::MV_IOS_8_2:
-        os = "iPhone; iOS 8.2";
-        break;
-    case QSysInfo::MV_IOS_8_3:
-        os = "iPhone; iOS 8.3";
-        break;
-    case QSysInfo::MV_IOS_8_4:
-        os = "iPhone; iOS 8.4";
-        break;
-    case QSysInfo::MV_IOS_9_0:
-        os = "iPhone; iOS 9.0";
-        break;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-    case QSysInfo::MV_IOS_9_1:
-        os = "iPhone; iOS 9.1";
-        break;
-    case QSysInfo::MV_IOS_9_2:
-        os = "iPhone; iOS 9.2";
-        break;
-    case QSysInfo::MV_IOS_9_3:
-        os = "iPhone; iOS 9.3";
-        break;
-    case QSysInfo::MV_IOS_10_0:
-        os = "iPhone; iOS 10.0";
-        break;
-#endif
-    case QSysInfo::MV_IOS:
-        os = "iPhone; iOS unknown";
-        break;
-    default:
-        os = "Macintosh";
-        break;
-    }
-    return os;
-}
-#endif
-
-#ifdef Q_OS_WIN
-/**
- * Only on Windows
- * Get operating system and its version.
- * @return os   A QString containing the oprating systems name and version.
- */
-QString GAnalytics::Private::getSystemInfo()
-{
-    QSysInfo::WinVersion version = QSysInfo::windowsVersion();
-    QString os("Windows; ");
-    switch (version)
-    {
-    case QSysInfo::WV_95:
-        os += "Win 95";
-        break;
-    case QSysInfo::WV_98:
-        os += "Win 98";
-        break;
-    case QSysInfo::WV_Me:
-        os += "Win ME";
-        break;
-    case QSysInfo::WV_NT:
-        os += "Win NT";
-        break;
-    case QSysInfo::WV_2000:
-        os += "Win 2000";
-        break;
-    case QSysInfo::WV_2003:
-        os += "Win Server 2003";
-        break;
-    case QSysInfo::WV_VISTA:
-        os += "Win Vista";
-        break;
-    case QSysInfo::WV_WINDOWS7:
-        os += "Win 7";
-        break;
-    case QSysInfo::WV_WINDOWS8:
-        os += "Win 8";
-        break;
-    case QSysInfo::WV_WINDOWS8_1:
-        os += "Win 8.1";
-        break;
-      case QSysInfo::WV_WINDOWS10:
-        os += "Win 10";
-        break;
-    default:
-        os = "Windows; unknown";
-        break;
-    }
-    return os;
-}
-#endif
-
-#if defined(Q_OS_ANDROID)
-#include <QAndroidJniObject>
-
-QString GAnalytics::Private::getSystemInfo()
-{
-    return QString("Linux; U; Android %1; %2 %3 Build/%4; %5")
-            .arg(QAndroidJniObject::getStaticObjectField<jstring>("android/os/Build$VERSION", "RELEASE").toString())
-            .arg(QAndroidJniObject::getStaticObjectField<jstring>("android/os/Build", "MANUFACTURER").toString())
-            .arg(QAndroidJniObject::getStaticObjectField<jstring>("android/os/Build", "MODEL").toString())
-            .arg(QAndroidJniObject::getStaticObjectField<jstring>("android/os/Build", "ID").toString())
-            .arg(QAndroidJniObject::getStaticObjectField<jstring>("android/os/Build", "BRAND").toString());
-}
-#elif defined(Q_OS_LINUX)
-#include <sys/utsname.h>
-
-/**
- * Only on Unix systems.
- * Get operation system name and version.
- * @return os       A QString with the name and version of the operating system.
- */
-QString GAnalytics::Private::getSystemInfo()
-{
-    struct utsname buf;
-    uname(&buf);
-    QString system(buf.sysname);
-    QString release(buf.release);
-
-    return system + "; " + release;
-}
-#endif
 
 
 /**
