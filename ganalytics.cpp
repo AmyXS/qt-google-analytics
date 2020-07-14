@@ -8,6 +8,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QWebEngineProfile>
 #include <QOperatingSystemVersion>
 #include <QQueue>
 #include <QSettings>
@@ -191,9 +192,16 @@ QString GAnalytics::Private::getUserAgent()
 {
     QString locale = QLocale::system().name();
 
-    QString osType = QOperatingSystemVersion::current().name();
-    QString osVersion = QString::number(QOperatingSystemVersion::current().majorVersion()) + "." + QString::number(QOperatingSystemVersion::current().minorVersion());
-    QString system = osType + "; " + osVersion;
+    QWebEngineProfile profile;
+    const QString defaultAgent = profile.httpUserAgent();
+    int firstLeftBracket = defaultAgent.indexOf('(');
+    int firstRightBracket = defaultAgent.indexOf(')');
+    QString system;
+    if (firstLeftBracket > 0 && firstRightBracket > firstLeftBracket) {
+        system = defaultAgent.mid(firstLeftBracket + 1, firstRightBracket - firstLeftBracket -1);
+    } else {
+        logMessage(GAnalytics::Error, QString("Unexpected default user agent profile: %1").arg(defaultAgent));
+    }
 
     return QString("%1/%2 (%3; %4) GAnalytics/1.0 (Qt/%5)").arg(appName).arg(appVersion).arg(system).arg(locale).arg(QT_VERSION_STR);
 }
